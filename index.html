@@ -1,0 +1,1247 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Nuha</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<style>
+  :root {
+    --cream: #FFF8E7;
+    --pink: #F8C8DC;
+    --maroon: #6B0F1A;
+    --chocolate: #5D3A1A;
+    --white: #FFFFFF;
+    --shadow: 0 8px 24px rgba(109, 40, 217, 0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Georgia', serif;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--pink) 100%);
+    min-height: 100vh;
+    color: var(--chocolate);
+  }
+  nav {
+    background: var(--maroon);
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  nav button {
+    background: transparent;
+    border: 2px solid var(--cream);
+    color: var(--cream);
+    padding: 8px 20px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  nav button:hover, nav button.active {
+    background: var(--cream);
+    color: var(--maroon);
+  }
+  .page { display: block; padding: 40px 20px; max-width: 1200px; margin: 0 auto; scroll-margin-top: 80px; }
+
+  /* HOME PAGE */
+  .hero {
+    background: linear-gradient(180deg, var(--pink) 0%, var(--cream) 100%);
+    border-radius: 20px;
+    padding: 60px 20px;
+    text-align: center;
+    margin-bottom: 40px;
+    box-shadow: var(--shadow);
+    border: 4px solid var(--maroon);
+  }
+  .hero-img {
+    max-width: 320px;
+    margin: 0 auto 20px;
+    border: 5px solid var(--chocolate);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    overflow: hidden;
+    background: var(--pink);
+  }
+  .hero-img img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+  .hero h1 {
+    color: var(--maroon);
+    font-size: 2.8em;
+    margin-bottom: 16px;
+    text-shadow: 2px 2px 0 var(--pink);
+  }
+  .hero p {
+    color: var(--chocolate);
+    font-size: 1.2em;
+    margin-bottom: 24px;
+  }
+  .hero .home-btn {
+    background: var(--maroon);
+    color: var(--cream);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 28px;
+    font-size: 1.1em;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  .hero .home-btn:hover {
+    background: var(--chocolate);
+    transform: scale(1.05);
+  }
+
+  /* WISHES PAGE */
+  .wishes-banner {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 24px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 3px solid var(--maroon);
+    box-shadow: var(--shadow);
+  }
+  .wishes-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .login-card {
+    background: var(--white);
+    border: 3px solid var(--maroon);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 450px;
+    margin: 0 auto 30px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .login-card h2 { color: var(--maroon); margin-bottom: 16px; }
+  .login-card input, .login-card button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 2px solid var(--pink);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1em;
+  }
+  .login-card button {
+    background: var(--maroon);
+    color: var(--cream);
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  .login-card button:hover { background: var(--chocolate); }
+
+  .wish-form {
+    background: var(--white);
+    border: 3px solid var(--maroon);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+    display: none;
+  }
+  .wish-form.visible { display: block; }
+  .wish-form h3 { color: var(--maroon); margin-bottom: 16px; }
+  .wish-form input, .wish-form textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 2px solid var(--pink);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1em;
+  }
+  .wish-form textarea { resize: vertical; min-height: 80px; }
+  .wish-form button {
+    background: var(--maroon);
+    color: var(--cream);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    margin-top: 8px;
+  }
+  .wish-form button:hover { background: var(--chocolate); }
+
+  .wishes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.4s ease, margin 0.4s ease;
+    margin-top: 0;
+  }
+  .wishes-list.visible {
+    max-height: 5000px;
+    opacity: 1;
+    margin-top: 20px;
+  }
+  .see-wishes-btn {
+    background: var(--maroon);
+    color: var(--cream);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 1em;
+    transition: 0.3s;
+    margin: 20px auto;
+    display: block;
+  }
+  .see-wishes-btn:hover { background: var(--chocolate); }
+  .wish-card {
+    background: var(--white);
+    border: 3px solid var(--maroon);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .wish-card .wish-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .wish-card .avatar {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--pink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    border: 2px solid var(--maroon);
+  }
+  .wish-card .name { color: var(--maroon); font-weight: bold; font-size: 1.1em; }
+  .wish-card .date { color: var(--chocolate); font-size: 0.85em; opacity: 0.8; }
+  .wish-card .message { color: var(--chocolate); margin-bottom: 16px; line-height: 1.6; }
+  .wish-card .actions { display: flex; gap: 12px; }
+  .wish-card button {
+    background: var(--cream);
+    color: var(--maroon);
+    border: 2px solid var(--maroon);
+    padding: 6px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  .wish-card button:hover { background: var(--maroon); color: var(--cream); }
+  .wish-card button.liked { background: var(--maroon); color: var(--cream); }
+  .admin-delete-btn {
+    background: #c0392b !important;
+    color: #fff !important;
+    border-color: #c0392b !important;
+  }
+  .admin-delete-btn:hover {
+    background: #a93226 !important;
+  }
+  .replies {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px dashed var(--pink);
+    display: none;
+  }
+  .replies.visible { display: block; }
+  .reply {
+    background: var(--cream);
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--maroon);
+  }
+  .reply .reply-author { color: var(--maroon); font-weight: bold; font-size: 0.9em; }
+  .reply .reply-text { color: var(--chocolate); margin-top: 4px; }
+  .reply-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .reply-input input { flex: 1; padding: 8px; border: 2px solid var(--pink); border-radius: 8px; font-family: inherit; }
+  .reply-input button { padding: 8px 16px; }
+
+  /* CELEBRATE PAGE */
+  .thank-you-area {
+    background: var(--white);
+    border: 4px solid var(--maroon);
+    border-radius: 20px;
+    padding: 40px 24px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .thank-you-area h2 {
+    color: var(--maroon);
+    margin-bottom: 30px;
+    font-size: 2em;
+  }
+  .cake-display {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  .cake-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 16px;
+    border: 4px solid var(--maroon);
+    box-shadow: var(--shadow);
+  }
+  .thank-you-message {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .thank-you-message h3 {
+    color: var(--maroon);
+    font-size: 1.5em;
+    margin-bottom: 20px;
+  }
+  .thank-you-message p {
+    color: var(--chocolate);
+    font-size: 1.1em;
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+  .thank-you-message .signature {
+    color: var(--maroon);
+    font-weight: bold;
+    font-style: italic;
+    margin-top: 20px;
+  }
+
+  .countdown-area {
+    background: var(--white);
+    border: 3px solid var(--maroon);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .countdown-area h3 { color: var(--maroon); margin-bottom: 16px; }
+  #countdown {
+    font-size: 2em;
+    color: var(--maroon);
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+  .calendar-btn {
+    background: var(--maroon);
+    color: var(--cream);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 1em;
+    transition: 0.3s;
+  }
+  .calendar-btn:hover { background: var(--chocolate); }
+
+  /* MEMORIAL PAGE */
+  .memorial-area {
+    position: relative;
+    background: var(--white);
+    border: 4px solid var(--maroon);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .memorial-area h2 { color: var(--maroon); margin-bottom: 20px; }
+  .memorial-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .memorial-card {
+    background: var(--white);
+    border: 3px solid var(--maroon);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .memorial-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .memorial-card .memorial-caption {
+    color: var(--chocolate);
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+  }
+  .memorial-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .memorial-actions button {
+    background: var(--cream);
+    color: var(--maroon);
+    border: 2px solid var(--maroon);
+    padding: 4px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 0.85em;
+    transition: 0.2s;
+  }
+  .memorial-actions button:hover {
+    background: var(--maroon);
+    color: var(--cream);
+  }
+  .memorial-actions button.delete-btn {
+    border-color: #c0392b;
+    color: #c0392b;
+  }
+  .memorial-actions button.delete-btn:hover {
+    background: #c0392b;
+    color: var(--cream);
+  }
+  .memorial-uploader {
+    color: var(--chocolate);
+    font-size: 0.85em;
+    opacity: 0.8;
+    margin-top: 4px;
+  }
+  .add-photo-btn {
+    background: var(--maroon);
+    color: var(--cream);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 1em;
+    transition: 0.3s;
+    margin-top: 10px;
+  }
+  .add-photo-btn:hover { background: var(--chocolate); }
+  .add-photo-form {
+    display: none;
+    background: var(--white);
+    border: 3px solid var(--maroon);
+    border-radius: 16px;
+    padding: 24px;
+    margin-top: 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .add-photo-form.visible { display: block; }
+  .add-photo-form input, .add-photo-form button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 2px solid var(--pink);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1em;
+  }
+  .add-photo-form button {
+    background: var(--maroon);
+    color: var(--cream);
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  .add-photo-form button:hover { background: var(--chocolate); }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 2em; }
+    nav { flex-wrap: wrap; gap: 12px; }
+  }
+
+  /* TOP BIRTHDAY CALENDAR */
+  .birthday-calendar{max-width:760px;margin:0 auto 35px;background:linear-gradient(145deg,#fff,#fff8e7);border:3px solid var(--maroon);border-radius:22px;padding:24px;box-shadow:var(--shadow)}
+  .calendar-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  .calendar-top h3{color:var(--maroon);font-size:1.5em;text-align:center;flex:1}
+  .calendar-nav{width:42px;height:42px;border:2px solid var(--maroon);border-radius:50%;background:var(--cream);color:var(--maroon);font-size:20px;cursor:pointer;font-family:inherit;font-weight:bold;transition:.25s}
+  .calendar-nav:hover{background:var(--maroon);color:var(--cream);transform:scale(1.08)}
+  .calendar-weekdays,.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .calendar-weekdays div{color:var(--maroon);font-weight:bold;text-align:center;padding:8px 2px;font-size:.9em}
+  .calendar-day{min-height:62px;border:1px solid #f0d5df;border-radius:13px;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;color:var(--chocolate);font-weight:bold;transition:.25s}
+  .calendar-day.empty{background:transparent;border-color:transparent}
+  .calendar-day:not(.empty):hover{transform:translateY(-3px);box-shadow:0 5px 12px rgba(107,15,26,.12)}
+  .calendar-day.today{border:2px solid var(--maroon)}
+  .calendar-day.birthday{background:linear-gradient(145deg,#f8c8dc,#fff8e7);border:3px solid var(--maroon);color:var(--maroon);cursor:pointer;animation:birthdayPulse 1.8s infinite}
+  .calendar-day.birthday::after{content:"🎂";position:absolute;right:5px;bottom:3px;font-size:17px}
+  .birthday-note{text-align:center;margin-top:18px;color:var(--maroon);font-weight:bold;font-size:1.05em}
+  .birthday-note span{display:inline-block;margin-top:6px;font-size:.9em;color:var(--chocolate);font-weight:normal}
+  @keyframes birthdayPulse{0%,100%{box-shadow:0 0 0 rgba(107,15,26,0)}50%{box-shadow:0 0 18px rgba(107,15,26,.25)}}
+  @media(max-width:600px){.birthday-calendar{padding:14px}.calendar-weekdays,.calendar-days{gap:5px}.calendar-day{min-height:46px;border-radius:9px;font-size:.9em}.calendar-day.birthday::after{font-size:13px}.calendar-top h3{font-size:1.2em}}
+
+
+  .calendar-day.birthday{flex-direction:column;gap:2px;padding:5px}
+  .calendar-day.birthday .birthday-number{font-size:1em;line-height:1}
+  .calendar-day.birthday small{font-size:8px;line-height:1.1;color:var(--maroon);font-weight:bold;white-space:nowrap}
+
+</style>
+</head>
+<body>
+<!-- HOME PAGE -->
+<div id="home" class="page">
+  <div id="setupGuide" style="display:none; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 20px; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto;">
+    <h3 style="color: #856404; margin-top: 0;">⚙️ Virtual Web Setup Required</h3>
+    <p style="color: #856404;">To enable real-time sharing of wishes and memorial photos across all visitors, please configure Firebase:</p>
+    <ol style="color: #856404; text-align: left;">
+      <li>Go to <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a> and create a project</li>
+      <li>Create a <strong>Firestore Database</strong> and start in <strong>test mode</strong></li>
+      <li>Replace the <code>firebaseConfig</code> object in <code>birthday.html</code> with your project credentials</li>
+      <li>Refresh the page</li>
+    </ol>
+    <p style="color: #856404; font-size: 0.9em;">Currently running in <strong>Local Mode</strong> — data is stored only in this browser.</p>
+  </div>
+  <div class="hero">
+    <div class="hero-img"><img src="hero.jpeg" alt="Nuha Birthday "></div>
+    <h1>Happy Birthday to Nuha </h1>
+    <p>Wishing you a day filled with love, laughter, and endless joy!</p>
+  </div>
+  <div style="text-align:center; margin-top: 40px;">
+    <div style="font-size: 60px; margin-bottom: 20px;">🎈🎁🎉</div>
+    <p style="color: var(--maroon); font-size: 1.3em; font-weight: bold;">Celebrating a Special Day</p>
+  </div>
+</div>
+<!-- BIRTHDAY CALENDAR -->
+<div class="page" id="top-calendar">
+  <div class="birthday-calendar">
+    <div class="calendar-top">
+      <button class="calendar-nav" onclick="changeCalendarMonth(-1)">‹</button>
+      <h3 id="calendarMonth">August 2026</h3>
+      <button class="calendar-nav" onclick="changeCalendarMonth(1)">›</button>
+    </div>
+    <div class="calendar-weekdays">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    <div class="calendar-days" id="calendarDays"></div>
+    <div class="birthday-note">🎂 16 August — Birthday 💖<br><span>Click 16 August for a little surprise ✨</span></div>
+  </div>
+</div>
+
+<!-- WISHES PAGE -->
+<div id="wishes" class="page">
+  <div class="wishes-banner">
+    <img src="./nuha1.png" alt="Nuha">
+  </div>
+
+  <div class="wish-form" id="wishForm">
+    <h3>✨ Leave a Birthday Wish</h3>
+    <input type="text" id="wisherName" placeholder="Your Name">
+    <input type="file" id="wishImage" accept="image/*">
+    <textarea id="wishMessage" placeholder="Write your heartfelt wish..."></textarea>
+    <button onclick="postWish()">Post Wish</button>
+  </div>
+  <div class="wishes-list" id="wishesList"></div>
+</div>
+
+<!-- MEMORIAL PAGE -->
+<div id="memorial" class="page">
+  <div class="memorial-area">
+    <h2>🕊️ Memorial Gallery</h2>
+    <div class="memorial-gallery" id="memorialGallery"><div class="memorial-card">
+        <img src="./nuha2.png" alt="Memorial Photo">
+        
+        
+        
+      </div><div class="memorial-card">
+        <img src="./nuha3.png" alt="Memorial Photo">
+        
+        
+        
+      </div></div>
+    <div class="add-photo-form" id="addPhotoForm">
+      <h3>Add a Photo</h3>
+      <input type="text" id="memorialUserName" placeholder="Your name">
+      <input type="text" id="photoCaption" placeholder="Photo caption">
+      <input type="file" id="photoFile" accept="image/*">
+      <button onclick="addPhoto()">Add Photo</button>
+    </div>
+  </div>
+</div>
+
+<!-- CELEBRATE PAGE -->
+<div id="celebrate" class="page">
+  <div class="thank-you-area">
+    <h2>🎂 Happy Birthday Nuha!!</h2>
+    <div class="cake-display">
+      <img src="./nuha4.png" alt="Birthday Cake" class="cake-image">
+    </div>
+    <div class="thank-you-message">
+      <h3>Thank You for Being Part of This Celebration!</h3>
+      <p>Your love, wishes, and presence make this day even more special.</p>
+      <p>Here's to a year filled with joy, success, and beautiful moments.</p>
+      <p class="signature">With love and gratitude 💖</p>
+    </div>
+  </div>
+
+  <div class="countdown-area">
+    <h3>⏰ Countdown to Nuha's Birthday</h3>
+    <div id="countdown">363d 12h 56m 50s</div>
+  </div>
+</div>
+
+<script>
+  // Firebase Configuration
+  // Replace with your Firebase project config from https://console.firebase.google.com
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  try {
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  } catch (e) {
+    console.warn('Firebase init failed:', e);
+  }
+
+  // Navigation
+  const navButtons = document.querySelectorAll('nav button');
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => scrollToSection(btn.textContent.trim().toLowerCase()));
+  });
+  // Virtual Web - Real-time data sharing
+  const VirtualWeb = {
+    db: null,
+    enabled: false,
+    wishesUnsubscribe: null,
+    photosUnsubscribe: null,
+
+    init() {
+      try {
+        if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) {
+          console.warn('Firebase not loaded. Using local mode.');
+          this.updateStatus(false);
+          return;
+        }
+        this.db = firebase.firestore();
+        this.enabled = true;
+        this.setupRealtimeListeners();
+        this.updateStatus(true);
+        console.log('Virtual Web enabled - real-time sync active');
+      } catch (e) {
+        console.warn('Virtual Web init failed:', e);
+        this.updateStatus(false);
+      }
+    },
+
+    updateStatus(enabled) {
+      const status = document.getElementById('vwStatus');
+      const guide = document.getElementById('setupGuide');
+      if (status) {
+        if (enabled) {
+          status.textContent = '🟢 Virtual Web Active';
+          status.style.color = '#28a745';
+        } else {
+          status.textContent = '⏳ Local Mode';
+          status.style.color = '#fff';
+        }
+      }
+      if (guide) {
+        guide.style.display = enabled ? 'none' : 'block';
+      }
+    },
+
+    setupRealtimeListeners() {
+      if (!this.enabled || !this.db) return;
+
+      this.wishesUnsubscribe = this.db.collection('wishes').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+        const wishes = [];
+        snapshot.forEach(doc => {
+          wishes.push({ id: doc.id, ...doc.data() });
+        });
+        this.syncWishesToLocal(wishes);
+        renderWishesList(wishes);
+      }, err => {
+        console.error('Wishes listener error:', err);
+      });
+
+      this.photosUnsubscribe = this.db.collection('memorialPhotos').orderBy('timestamp', 'asc').onSnapshot(snapshot => {
+        const photos = [];
+        snapshot.forEach(doc => {
+          photos.push({ id: doc.id, ...doc.data() });
+        });
+        this.syncPhotosToLocal(photos);
+        renderMemorialGallery(photos);
+      }, err => {
+        console.error('Photos listener error:', err);
+      });
+    },
+
+    syncWishesToLocal(wishes) {
+      try {
+        localStorage.setItem('hemeka_vw_wishes', JSON.stringify(wishes));
+      } catch (e) {}
+    },
+
+    syncPhotosToLocal(photos) {
+      try {
+        localStorage.setItem('hemeka_vw_photos', JSON.stringify(photos));
+      } catch (e) {}
+    },
+
+    getWishes() {
+      try {
+        const local = JSON.parse(localStorage.getItem('hemeka_vw_wishes') || '[]');
+        if (local.length > 0) return local;
+      } catch (e) {}
+      return [];
+    },
+
+    getPhotos() {
+      try {
+        const local = JSON.parse(localStorage.getItem('hemeka_vw_photos') || '[]');
+        if (local.length > 0) return local;
+      } catch (e) {}
+      return [];
+    },
+
+    async addWish(wish) {
+      if (!this.enabled || !this.db) return null;
+      try {
+        const docRef = await this.db.collection('wishes').add({
+          ...wish,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return docRef.id;
+      } catch (e) {
+        console.error('Failed to add wish:', e);
+        return null;
+      }
+    },
+
+    async deleteWish(id) {
+      if (!this.enabled || !this.db) return;
+      try {
+        await this.db.collection('wishes').doc(id).delete();
+      } catch (e) {
+        console.error('Failed to delete wish:', e);
+      }
+    },
+
+    async addPhoto(photo) {
+      if (!this.enabled || !this.db) return null;
+      try {
+        const docRef = await this.db.collection('memorialPhotos').add({
+          ...photo,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return docRef.id;
+      } catch (e) {
+        console.error('Failed to add photo:', e);
+        return null;
+      }
+    },
+
+    async deletePhoto(id) {
+      if (!this.enabled || !this.db) return;
+      try {
+        await this.db.collection('memorialPhotos').doc(id).delete();
+      } catch (e) {
+        console.error('Failed to delete photo:', e);
+      }
+    },
+
+    async updatePhotoCaption(id, caption) {
+      if (!this.enabled || !this.db) return;
+      try {
+        await this.db.collection('memorialPhotos').doc(id).update({ caption });
+      } catch (e) {
+        console.error('Failed to update photo:', e);
+      }
+    }
+  };
+
+  // Wishes
+  let currentUser = null;
+  function checkLogin() {
+    const saved = localStorage.getItem('hemeka_guest');
+    if (saved) {
+      currentUser = JSON.parse(saved);
+      document.getElementById('wishForm').classList.add('visible');
+      document.querySelector('.login-card').style.display = 'none';
+      document.getElementById('wisherName').value = currentUser.name || '';
+    }
+  }
+  function loginGuest() {
+    const email = document.getElementById('guestEmail').value.trim();
+    const name = document.getElementById('guestName').value.trim();
+    if (!email || !name) { alert('Please enter both email and name'); return; }
+    currentUser = { email, name };
+    localStorage.setItem('hemeka_guest', JSON.stringify(currentUser));
+    document.getElementById('wishForm').classList.add('visible');
+    document.querySelector('.login-card').style.display = 'none';
+    document.getElementById('wisherName').value = name;
+  }
+  function postWish() {
+    const name = document.getElementById('wisherName').value.trim();
+    const message = document.getElementById('wishMessage').value.trim();
+    const imageInput = document.getElementById('wishImage');
+    if (!name || !message) { alert('Please fill in your name and message'); return; }
+
+    const processWish = (imageSrc) => {
+      const wish = {
+        name,
+        message,
+        image: imageSrc,
+        date: new Date().toISOString(),
+        likes: 0,
+        likedBy: [],
+        replies: []
+      };
+
+      const card = document.createElement('div');
+      card.className = 'wish-card';
+      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      card.innerHTML = `
+        <div class="wish-header">
+          <div class="avatar">🎉</div>
+          <div><div class="name">${escapeHtml(name)}</div><div class="date">${today}</div></div>
+        </div>
+        <div class="message">${escapeHtml(message)}</div>
+        ${imageSrc ? `<img src="${imageSrc}" style="max-width:200px;border-radius:12px;margin-top:10px;border:2px solid var(--maroon);" />` : ''}
+        <div class="actions">
+          <button class="like-btn" onclick="toggleLike(this)">❤️ <span>0</span></button>
+          <button onclick="toggleReplies(this)">💬 Reply</button>
+          <button class="admin-delete-btn" onclick="adminDeleteWish(this)" style="display:none;" title="Admin Delete">🗑️</button>
+        </div>
+        <div class="replies"><div class="reply-input"><input type="text" placeholder="Write a reply..." /><button onclick="addReply(this)">Reply</button></div></div>
+      `;
+      document.getElementById('wishesList').insertBefore(card, document.getElementById('wishesList').firstChild);
+      updateAdminButtons();
+      document.getElementById('wishMessage').value = '';
+      imageInput.value = '';
+
+      VirtualWeb.addWish(wish);
+    };
+
+    if (imageInput.files && imageInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => processWish(e.target.result);
+      reader.readAsDataURL(imageInput.files[0]);
+    } else {
+      processWish(null);
+    }
+  }
+  function toggleLike(btn) {
+    const span = btn.querySelector('span');
+    const current = parseInt(span.textContent);
+    span.textContent = current + 1;
+    btn.classList.add('liked');
+    btn.disabled = true;
+  }
+  function toggleReplies(btn) {
+    const card = btn.closest('.wish-card');
+    const replies = card.querySelector('.replies');
+    replies.classList.toggle('visible');
+  }
+  function addReply(inputBtn) {
+    const input = inputBtn.previousElementSibling;
+    const text = input.value.trim();
+    if (!text) return;
+    const card = inputBtn.closest('.wish-card');
+    const replies = card.querySelector('.replies');
+    const reply = document.createElement('div');
+    reply.className = 'reply';
+    reply.innerHTML = `<div class="reply-author">${escapeHtml(currentUser ? currentUser.name : 'Guest')}</div><div class="reply-text">${escapeHtml(text)}</div>`;
+    replies.insertBefore(reply, replies.lastElementChild);
+    input.value = '';
+  }
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function renderWishesList(wishes) {
+    const container = document.getElementById('wishesList');
+    if (!container) return;
+    container.innerHTML = '';
+    const wishesToRender = wishes && wishes.length > 0 ? wishes : VirtualWeb.getWishes();
+    wishesToRender.forEach(wish => {
+      const card = document.createElement('div');
+      card.className = 'wish-card';
+      const today = new Date(wish.date || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      card.innerHTML = `
+        <div class="wish-header">
+          <div class="avatar">🎉</div>
+          <div><div class="name">${escapeHtml(wish.name || 'Anonymous')}</div><div class="date">${today}</div></div>
+        </div>
+        <div class="message">${escapeHtml(wish.message)}</div>
+        ${wish.image ? `<img src="${wish.image}" style="max-width:200px;border-radius:12px;margin-top:10px;border:2px solid var(--maroon);" />` : ''}
+        <div class="actions">
+          <button class="like-btn" onclick="toggleLike(this)">❤️ <span>${wish.likes || 0}</span></button>
+          <button onclick="toggleReplies(this)">💬 Reply</button>
+          <button class="admin-delete-btn" onclick="adminDeleteWish(this)" style="display:none;" title="Admin Delete">🗑️</button>
+        </div>
+        <div class="replies">
+          ${(wish.replies || []).map(r => `<div class="reply"><div class="reply-author">${escapeHtml(r.author)}</div><div class="reply-text">${escapeHtml(r.text)}</div></div>`).join('')}
+          <div class="reply-input"><input type="text" placeholder="Write a reply..." /><button onclick="addReply(this)">Reply</button></div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+    updateAdminButtons();
+  }
+
+  function toggleWishes() {
+    const list = document.getElementById('wishesList');
+    const btn = document.getElementById('seeWishesBtn');
+    if (list.classList.contains('visible')) {
+      list.classList.remove('visible');
+      btn.textContent = '👁️ See Wishes';
+    } else {
+      list.classList.add('visible');
+      btn.textContent = '🙈 Hide Wishes';
+    }
+  }
+
+
+  // Top Birthday Calendar
+  let calendarDate = new Date();
+  function renderBirthdayCalendar(){
+    const y=calendarDate.getFullYear(), m=calendarDate.getMonth();
+    const names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('calendarMonth').textContent=`${names[m]} ${y}`;
+    const box=document.getElementById('calendarDays'); box.innerHTML='';
+    const first=new Date(y,m,1).getDay(), total=new Date(y,m+1,0).getDate(), now=new Date();
+    for(let i=0;i<first;i++){const e=document.createElement('div');e.className='calendar-day empty';box.appendChild(e)}
+    for(let d=1;d<=total;d++){
+      const c=document.createElement('div'); c.className='calendar-day'; c.textContent=d;
+      if(d===now.getDate()&&m===now.getMonth()&&y===now.getFullYear())c.classList.add('today');
+      if(m===7&&d===16){
+        c.classList.add('birthday');
+        c.innerHTML='<span class="birthday-number">16</span><small>Nuha\'s Birthday</small>';
+        c.onclick=()=>alert('🎉 Happy Birthday Nuha! 🎂💖\n\nMay your day be filled with love, happiness and beautiful memories! ✨')
+      }
+      box.appendChild(c);
+    }
+  }
+  function changeCalendarMonth(dir){calendarDate.setMonth(calendarDate.getMonth()+dir);renderBirthdayCalendar()}
+  renderBirthdayCalendar();
+
+  // Countdown
+  function updateCountdown() {
+    const now = new Date();
+    const birthday = new Date(now.getFullYear(), 7, 16);
+    if (now > birthday) birthday.setFullYear(birthday.getFullYear() + 1);
+    const diff = birthday - now;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+    document.getElementById('countdown').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  function addCalendarReminder() {
+    const title = "Hemeka Islam Heya's Birthday";
+    const details = "It's Hemeka's special day! 🎂";
+    const location = "";
+    const date = new Date(new Date().getFullYear(), 7, 16);
+    const start = date.toISOString().replace(/[-:]|\.\d{3}/g, '');
+    const end = new Date(date.getTime() + 60 * 60 * 1000).toISOString().replace(/[-:]|\.\d{3}/g, '');
+    const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(details)}`;
+    window.open(googleUrl, '_blank');
+  }
+
+  // Admin
+  const ADMIN_PASSWORD = '80415';
+  const ADMIN_KEY = 'hemeka_admin_auth';
+
+  function isAdmin() {
+    return sessionStorage.getItem(ADMIN_KEY) === 'true';
+  }
+  function setAdminAuth(value) {
+    sessionStorage.setItem(ADMIN_KEY, value ? 'true' : 'false');
+  }
+  function handleAdminClick() {
+    if (isAdmin()) {
+      if (confirm('Logout from admin panel?')) {
+        setAdminAuth(false);
+        updateAdminButton();
+        renderMemorialGallery();
+        updateAdminButtons();
+      }
+    } else {
+      const password = prompt('Enter admin password:');
+      if (password === ADMIN_PASSWORD) {
+        setAdminAuth(true);
+        updateAdminButton();
+        renderMemorialGallery();
+        updateAdminButtons();
+        alert('Admin access granted.');
+      } else if (password !== null) {
+        alert('Incorrect password.');
+      }
+    }
+  }
+  function updateAdminButton() {
+    const btn = document.getElementById('adminBtn');
+    if (!btn) return;
+    if (isAdmin()) {
+      btn.style.display = 'inline-block';
+      btn.textContent = 'Admin Logout';
+      btn.style.background = '#c0392b';
+      btn.style.color = '#fff';
+      btn.style.borderColor = '#c0392b';
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+
+  // Memorial
+  const MEMORIAL_STORAGE_KEY = 'hemeka_memorial_photos';
+  const MEMORIAL_USER_KEY = 'hemeka_memorial_user';
+
+  function getMemorialPhotos() {
+    return VirtualWeb.getPhotos();
+  }
+  function saveMemorialPhotos(photos) {
+    VirtualWeb.syncPhotosToLocal(photos);
+  }
+  function getMemorialUser() {
+    return localStorage.getItem(MEMORIAL_USER_KEY) || '';
+  }
+  function setMemorialUser(name) {
+    localStorage.setItem(MEMORIAL_USER_KEY, name);
+  }
+
+  function initMemorialDefaults() {
+    if (VirtualWeb.enabled) return;
+    const photos = getMemorialPhotos();
+    const defaults = [
+      { src: './nuha2.png', caption: '', uploader: '', timestamp: Date.now() - 100000, isDefault: true },
+      { src: './nuha3.png', caption: '', uploader: '', timestamp: Date.now() - 50000, isDefault: true }
+    ];
+    const merged = defaults.map(defaultPhoto => {
+      const existing = photos.find(p => p.src === defaultPhoto.src && p.isDefault);
+      if (existing) {
+        return { ...existing, caption: '', uploader: '' };
+      }
+      return defaultPhoto;
+    });
+    saveMemorialPhotos(merged);
+  }
+
+  function renderMemorialGallery(photos) {
+    const gallery = document.getElementById('memorialGallery');
+    if (!gallery) return;
+    
+    let photosToRender = photos && photos.length > 0 ? [...photos] : [...getMemorialPhotos()];
+    
+    const defaults = [
+      { src: './nuha2.png', caption: '', uploader: '', timestamp: Date.now() - 100000, isDefault: true },
+      { src: './nuha3.png', caption: '', uploader: '', timestamp: Date.now() - 50000, isDefault: true }
+    ];
+    
+    defaults.forEach(defaultPhoto => {
+      const exists = photosToRender.some(p => p.src === defaultPhoto.src && p.isDefault);
+      if (!exists) {
+        photosToRender.unshift(defaultPhoto);
+      }
+    });
+    
+    const currentUser = getMemorialUser();
+    const admin = isAdmin();
+    gallery.innerHTML = '';
+
+    photosToRender.forEach((photo, index) => {
+      const card = document.createElement('div');
+      card.className = 'memorial-card';
+      const isOwner = currentUser && currentUser === photo.uploader;
+      const showActions = (isOwner || admin) && !photo.isDefault;
+
+      let captionHtml = '';
+      if (!photo.isDefault && photo.caption) {
+        captionHtml = `<div class="memorial-caption">${escapeHtml(photo.caption)}</div>`;
+      }
+
+      let uploaderHtml = '';
+      if (!photo.isDefault && photo.uploader) {
+        uploaderHtml = `<div class="memorial-uploader">Uploaded by ${escapeHtml(photo.uploader)}</div>`;
+      }
+
+      let actionsHtml = '';
+      if (showActions) {
+        actionsHtml = `
+          <div class="memorial-actions">
+            <button onclick="editPhoto(${index})">✏️ Edit</button>
+            <button class="delete-btn" onclick="deletePhoto(${index})">🗑️ Delete</button>
+          </div>
+        `;
+      } else if (admin && !photo.isDefault) {
+        actionsHtml = `
+          <div class="memorial-actions">
+            <button class="delete-btn" onclick="adminDeletePhoto(${index})">🗑️ Admin Delete</button>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        <img src="${photo.src}" alt="${escapeHtml(photo.caption || 'Memorial Photo')}" />
+        ${captionHtml}
+        ${uploaderHtml}
+        ${actionsHtml}
+      `;
+      gallery.appendChild(card);
+    });
+  }
+
+  function toggleAddPhotoForm() {
+    document.getElementById('addPhotoForm').classList.toggle('visible');
+  }
+
+  function addPhoto() {
+    const uploaderName = document.getElementById('memorialUserName').value.trim();
+    const caption = document.getElementById('photoCaption').value.trim();
+    const fileInput = document.getElementById('photoFile');
+    if (!fileInput.files || !fileInput.files[0]) {
+      alert('Please select a photo');
+      return;
+    }
+    const nameToUse = uploaderName || prompt('Please enter your name:');
+    if (!nameToUse) return;
+    setMemorialUser(nameToUse);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const photo = {
+        src: e.target.result,
+        caption: caption || 'Memorial Photo',
+        uploader: nameToUse,
+        timestamp: Date.now()
+      };
+      VirtualWeb.addPhoto(photo);
+      document.getElementById('photoCaption').value = '';
+      document.getElementById('memorialUserName').value = '';
+      fileInput.value = '';
+      document.getElementById('addPhotoForm').classList.remove('visible');
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  }
+
+  function deletePhoto(index) {
+    const photos = getMemorialPhotos();
+    const currentUser = getMemorialUser();
+    const admin = isAdmin();
+    if (!admin && (!currentUser || currentUser !== photos[index].uploader)) {
+      alert('Only the uploader can delete this photo.');
+      return;
+    }
+    if (photos[index].isDefault) {
+      alert('Default photos cannot be deleted.');
+      return;
+    }
+    if (!confirm('Are you sure you want to delete this photo?')) return;
+    const photoId = photos[index].id;
+    photos.splice(index, 1);
+    saveMemorialPhotos(photos);
+    VirtualWeb.deletePhoto(photoId);
+    renderMemorialGallery();
+  }
+
+  function adminDeletePhoto(index) {
+    const photos = getMemorialPhotos();
+    if (!isAdmin()) {
+      alert('Admin access required.');
+      return;
+    }
+    if (photos[index].isDefault) {
+      alert('Default photos cannot be deleted.');
+      return;
+    }
+    if (!confirm('Admin: Are you sure you want to delete this photo?')) return;
+    const photoId = photos[index].id;
+    photos.splice(index, 1);
+    saveMemorialPhotos(photos);
+    VirtualWeb.deletePhoto(photoId);
+    renderMemorialGallery();
+  }
+
+  function editPhoto(index) {
+    const photos = getMemorialPhotos();
+    if (photos[index].isDefault) {
+      alert('Default photos cannot be edited.');
+      return;
+    }
+    const currentUser = getMemorialUser();
+    const admin = isAdmin();
+    if (!admin && (!currentUser || currentUser !== photos[index].uploader)) {
+      alert('Only the uploader can edit this photo.');
+      return;
+    }
+    const newCaption = prompt('Edit caption:', photos[index].caption || 'Memorial Photo');
+    if (newCaption === null) return;
+    photos[index].caption = newCaption.trim() || 'Memorial Photo';
+    saveMemorialPhotos(photos);
+    VirtualWeb.updatePhotoCaption(photos[index].id, photos[index].caption);
+    renderMemorialGallery();
+  }
+
+  function adminDeleteWish(btn) {
+    if (!isAdmin()) {
+      alert('Admin access required.');
+      return;
+    }
+    if (!confirm('Admin: Are you sure you want to delete this wish?')) return;
+    const card = btn.closest('.wish-card');
+    card.remove();
+  }
+
+  function updateAdminButtons() {
+    const admin = isAdmin();
+    document.querySelectorAll('.admin-delete-btn').forEach(btn => {
+      btn.style.display = admin ? 'inline-block' : 'none';
+    });
+    updateAdminButton();
+  }
+
+  // Init
+  VirtualWeb.init();
+  checkLogin();
+  initMemorialDefaults();
+  renderMemorialGallery();
+  renderWishesList();
+  updateAdminButtons();
+  
+</script>
+
+
+
+</body></html>
